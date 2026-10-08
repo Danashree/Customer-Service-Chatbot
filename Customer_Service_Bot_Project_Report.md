@@ -1,195 +1,146 @@
-# 🤖 Customer Service Chatbot — Project Report & Architecture Guide
+# 🤖 Enterprise Customer Service Chatbot — Project Report & Architecture Guide
 
-> **E-Learning FAQ Automation System with RAG (Retrieval-Augmented Generation)**  
-> **Company:** Nullclass  
-> **Tech Stack:** FastAPI, HTML5/CSS3/JavaScript, LangChain LCEL, FAISS, Google Gemini 2.5 Flash
-
----
-
-## 📌 1. Project Overview & Business Context
-
-### What is this project?
-The **Customer Service Chatbot** is an AI-powered Question-and-Answer (Q&A) automation system designed for **Nullclass**, an e-learning platform specializing in data science courses, AI bootcamps, and virtual internships.
-
-### The Business Problem
-Nullclass learners and prospective students routinely ask hundreds of repetitive questions on **Discord** and **email**, including:
-- *"Do you offer EMI payment options?"*
-- *"Can I run Power BI on a Mac?"*
-- *"Do I need prior programming experience?"*
-- *"What is your refund policy?"*
-
-Addressing these inquiries manually creates huge overhead for human mentors and support teams. 
-
-### The Solution
-This project implements a **Retrieval-Augmented Generation (RAG)** pipeline:
-1. It ingests verified company FAQ data from `dataset.csv`.
-2. Encodes each FAQ into mathematical vector embeddings.
-3. Indexes them in a local **FAISS** vector store.
-4. When a user asks a question, it retrieves only the relevant FAQ sections and feeds them to **Google Gemini 2.5 Flash** to synthesize an accurate, instant response.
-
-> **Key Guardrail Policy:** The model is strictly instructed:  
-> *"If the answer is not found in the context, kindly state 'I don't know.' Don't try to make up an answer."*  
-> This guarantees the bot never hallucinates or makes false promises about company policies.
+> **Enterprise Multilingual Generative AI Customer Service Bot with RAG, Multimodal Verification, Support Ticketing & Escalation**  
+> **Company / Use Case:** Nullclass E-Learning & Services  
+> **Tech Stack:** FastAPI, HTML5/CSS3/JavaScript, LangChain LCEL, FAISS, Google Gemini (Flash), OCR, Python 3.13  
 
 ---
 
-## 🏗️ 2. Current System Architecture
+## 📌 1. Executive Summary & Project Overview
 
-The project is structured into a modern, decoupled **two-tier architecture**:
+The **Enterprise Customer Service Chatbot** is an AI-powered conversational automation system designed for Nullclass, an e-learning and virtual internship platform. Learners and prospective students frequently submit hundreds of inquiries across discord, web portals, and email regarding courses, course materials, tablets, order shipments, billing issues, and technical difficulties.
 
-```
+Addressing these repetitive inquiries manually creates heavy overhead for human support agents. This system automates resolution across 6 interconnected modules:
+1. **Production Knowledge-Base Pipeline**: Ingestion, hash deduplication, automated health checks, and 5-minute rollback.
+2. **Multimodal Evidence Verification**: OCR extraction from invoice receipts and error screenshots with sensitive payment masking.
+3. **Support Ticket Automation & SLA Engine**: Automatic ticket extraction, multi-factor priority scoring, and calendar-aware SLA calculation.
+4. **Temporal Grounded RAG Assistant**: Strict source citations, version conflict resolution, and anti-hallucination refusals.
+5. **Multilingual Sentiment & Escalation Engine**: Tone adaptation (empathetic, urgent, reassuring) and high-risk complaint escalation.
+6. **Multilingual Foundation & Session Isolation**: Support for English, Tamil, Hindi, and Malayalam (including code-mixed and transliterated queries) with session memory and entity preservation.
+
+---
+
+## 🏗️ 2. System Architecture & Components
+
+The application is structured into a modern two-tier architecture:
+
+```text
 customer_service_bot/
-├── .env                         # API credentials (GOOGLE_API_KEY)
-├── dataset/
-│   └── dataset.csv              # Company FAQs (prompt, response pairs)
 ├── backend/
-│   ├── main.py                  # FastAPI REST API (endpoints: /ask, /create-knowledgebase)
-│   ├── langchain_helper.py      # LCEL pipeline, FAISS loader, Gemini LLM
-│   └── faiss_index/             # Pre-built vector database index files
-└── frontend/
-    ├── index.html               # Responsive chat interface
-    ├── style.css                # Dark mode styling & animated chat bubbles
-    └── script.js                # API fetch client & typing indicator
+│   ├── main.py                     # FastAPI REST API endpoints (/ask, /multimodal, /tickets)
+│   ├── langchain_helper.py         # FAISS vector store & Gemini QA chain
+│   ├── pipeline/                   # Task 1: Ingestion, Version Control, Rollback, RBAC
+│   ├── multimodal/                 # Task 2: OCR Extraction, Evidence Verification, PII Masking
+│   ├── tickets/                    # Task 3 & 5: Ticketing Engine, SLA Engine, Sentiment
+│   ├── rag/                        # Task 4: Grounded RAG, Citations & Temporal Filter
+│   ├── multilingual/               # Task 6: Multilingual NLP, Session Context & Entity Manager
+│   └── tests/                      # 891 automated unit and integration tests
+├── dataset/
+│   └── dataset.csv                 # Core FAQ dataset (SHA256 verified)
+├── frontend/
+│   ├── index.html                  # Responsive chat interface with bottom docked input
+│   ├── script.js                   # Client fetch client, evidence cards, polling logic
+│   └── style.css                   # Dark theme, status pills, and animated bubbles
+└── run.py                          # Unified CLI entrypoint controller
 ```
 
 ### Component Breakdown
 | Layer | Technology | Role |
 |---|---|---|
-| **Backend API** | FastAPI + Uvicorn (Python 3.13) | Asynchronous, high-performance REST API with CORS support. |
-| **Frontend UI** | HTML5, CSS3, Modern JavaScript | WhatsApp/ChatGPT-style bubble interface with real-time typing indicators and sample questions. |
-| **Embedding Engine** | HuggingFace Instructor (`hkunlp/instructor-large`) | Transforms FAQ texts into dense semantic vectors. |
-| **Vector Database** | FAISS (Facebook AI Similarity Search) | Performs ultra-fast nearest-neighbor similarity searches. |
-| **Generative LLM** | Google Gemini 2.5 Flash | Synthesizes verified, natural answers strictly from retrieved context. |
+| **Backend API** | FastAPI + Uvicorn | Asynchronous, high-performance REST API with CORS support. |
+| **Frontend UI** | HTML5, CSS3, Vanilla JS | Modern WhatsApp/ChatGPT-style bubble interface with multimodal attachment cards. |
+| **Embedding Engine** | HuggingFace Instructor (`hkunlp/instructor-large`) | Transforms FAQ texts and policies into dense semantic vectors. |
+| **Vector Database** | FAISS | Ultra-fast nearest-neighbor similarity search. |
+| **Generative LLM** | Google Gemini | Generates grounded answers strictly from retrieved context and policies. |
+| **OCR & Vision** | Tesseract / PDF Parser | Extracts Order IDs, amounts, and error codes from images and invoices. |
 
 ---
 
-## 📜 3. Complete Chronological Journey: Problems, Root Causes & Fixes
+## 📜 3. Detailed Task Implementation Breakdown
 
-Here is the exact record of every obstacle encountered from the beginning of this project and why each change was made:
+### Task 1: Production Knowledge Base Pipeline
+- **Hash-based Ingestion**: Uses SHA-256 document hashing to process only new or modified documents.
+- **Automated Version Control**: Maintains versioned checkpoints (`v1`, `v2`, etc.).
+- **Automatic Rollback**: Runs automated health checks on deployment; if any check fails within 5 minutes, automatically rolls back to the previous stable version.
+- **Enterprise Security**: Role-Based Access Control (Admin, Operator, Viewer), prompt injection detection, and PII masking.
 
-### 1. Missing Dependencies & Outdated `requirements.txt`
-- **Problem:** `requirements.txt` was pinned to old packages (`langchain==0.0.339`), and essential packages like `faiss-cpu`, `sentence-transformers`, and `InstructorEmbedding` were missing.
-- **Root Cause:** The project was based on an older tutorial repository. The environment was on modern Python 3.13 where these packages were absent.
-- **Fix:** Installed `faiss-cpu`, `langchain-community`, `langchain-core`, and `langchain-google-genai`. Updated `requirements.txt`.
-- **Why:** To eliminate `ModuleNotFoundError` and ensure compatibility with Python 3.13.
+### Task 2: Multimodal Analysis & OCR Verification
+- **Evidence Extraction**: Extracts Order IDs (`ORD-xxxxx`), dates, total amounts, and product codes from PNG, JPG, WEBP, and PDF documents.
+- **Cross-Verification**: Compares customer message statements against the extracted document data to detect conflicts.
+- **Security & Redaction**: Automatically redacts sensitive payment card numbers (`[PAYMENT_REDACTED]`).
+- **Asynchronous Queueing**: Requests requiring >30s move to a background queue with customer progress notifications.
 
----
+### Task 3: Support Ticket Automation & SLA Engine
+- **Conversation-to-Ticket Conversion**: Converts unresolved interactions into structured tickets with customer, order, product, and issue fields.
+- **Multi-Factor Priority Scoring**: Calculates priority using severity, sentiment, waiting time, customer impact, and SLA rules.
+- **Calendar-Aware SLA Calculations**: Automatically excludes weekends and regional holidays; triggers warning notifications at 75% elapsed time and escalates upon breach.
+- **Smart Routing**: Routes tickets to human agents based on skill requirements, current workload capacity, and business hours.
 
-### 2. Migration from Deprecated Google PaLM to Google Gemini
-- **Problem:** The original script imported `GooglePalm` from `langchain.llms`.
-- **Root Cause:** Google officially retired the PaLM API in favor of the Google Gemini ecosystem. PaLM endpoints are discontinued.
-- **Fix:** Switched to `ChatGoogleGenerativeAI` from `langchain-google-genai` using your existing `GOOGLE_API_KEY`.
-- **Why:** Restores active API connectivity, reduces latency, and gives significantly higher reasoning quality.
+### Task 4: Grounded RAG Knowledge Assistant
+- **Strict Evidence Grounding**: Every answer is grounded in factual document chunks with precise source citations.
+- **Zero Hallucination Guardrails**: Explicitly states *"I don't know"* or requests clarification when evidence is insufficient or ambiguous.
+- **Temporal & Version Conflict Resolution**: Resolves policy conflicts by checking policy effective dates, expiry dates, and version recency.
 
----
+### Task 5: Multilingual Sentiment & Escalation Engine
+- **Multilingual Sentiment Detection**: Identifies emotions (frustrated, urgent, negative, neutral, positive) across English, Tamil, Hindi, and Malayalam.
+- **Dynamic Tone Adjustment**: Adapts assistant tone (empathetic, reassuring, professional, or formal).
+- **High-Risk Escalation**: High-risk triggers (double billing, unauthorized account access, legal threats) automatically escalate to priority support queues.
 
-### 3. Gemini Model Resolution (`gemini-1.5-flash` vs. `gemini-2.5-flash`)
-- **Problem:** Calling `gemini-1.5-flash` returned `404 NOT_FOUND` from Google's API.
-- **Root Cause:** On Google's current `v1beta` endpoint with your API key, model names have evolved.
-- **Fix:** Queried `genai.list_models()` dynamically and selected `gemini-2.5-flash`, which was verified active on your key.
-- **Why:** Completely fixed the 404 error and enabled Google's latest Gemini 2.5 model.
-
----
-
-### 4. Refactoring Deprecated `RetrievalQA` to Modern LCEL
-- **Problem:** `from langchain.chains import RetrievalQA` raised `ModuleNotFoundError: No module named 'langchain.chains'`.
-- **Root Cause:** LangChain 1.x removed legacy monolithic chain wrappers in favor of LangChain Expression Language (LCEL).
-- **Fix:** Re-architected the Q&A workflow using LCEL:
-  ```python
-  chain = (
-      {"context": retriever | format_docs, "question": RunnablePassthrough()}
-      | prompt_template
-      | llm
-      | StrOutputParser()
-  )
-  ```
-- **Why:** LCEL is the official, future-proof LangChain standard—lighter, faster, and fully transparent.
+### Task 6: Multilingual Foundation & Session Management
+- **Languages Supported**: English, Tamil, Hindi, Malayalam, and transliterated code-mixed queries (Tanglish/Hinglish).
+- **Session Continuity**: 10-message sliding window context memory; isolates simultaneous customer sessions.
+- **Lifecycle & Restoration**: 30-minute inactivity session expiry with a 24-hour summary restoration window.
+- **Smart Clarification**: Accurately recognizes genuine questions while politely requesting clarification for ambiguous single-word inputs.
 
 ---
 
-### 5. Dataset Path Mismatch
-- **Problem:** `CSVLoader` crashed trying to locate `dataset.csv` in the root folder.
-- **Root Cause:** The CSV file was located inside `dataset/dataset.csv`.
-- **Fix:** Updated the loader path to `../dataset/dataset.csv`.
-- **Why:** Allows the script to reliably locate and index the FAQ data.
+## 🔄 4. End-to-End Data Flow
 
----
-
-### 6. FAISS Security Deserialization Permission
-- **Problem:** `FAISS.load_local()` raised a security check failure.
-- **Root Cause:** LangChain requires explicit permission to deserialize pickle files to protect against malicious vector stores.
-- **Fix:** Added `allow_dangerous_deserialization=True` to `FAISS.load_local()`.
-- **Why:** Required to load local FAISS index files in trusted applications.
-
----
-
-### 7. Streamlit Knowledgebase Race Condition Guard
-- **Problem:** In the original Streamlit app, typing into the question input before clicking "Create Knowledgebase" caused a hard crash (`No such file or directory: faiss_index/index.faiss`).
-- **Root Cause:** Streamlit re-runs the entire script on keystroke, trying to load the index before it was ever generated.
-- **Fix:** Added `os.path.exists("faiss_index")` validation, loading spinners, and helpful guidance messages.
-- **Why:** Prevents application crashes and guides users smoothly.
-
----
-
-### 8. Architectural Decoupling: Streamlit ➔ FastAPI + Web Client
-- **Problem:** Streamlit re-runs the entire script top-to-bottom on every click, creating high latency and preventing the bot from being embedded in regular websites or mobile apps.
-- **Fix:** Converted the application into:
-  - A **FastAPI REST API** (`backend/main.py`)
-  - A clean **HTML5/CSS3/JavaScript Frontend** (`frontend/index.html`)
-- **Why:** Decoupled architecture is the industry standard. The backend can now serve any client (web, mobile, Discord bot, Slack app) while the frontend provides a smooth, instant chat interface.
-
----
-
-## ⚖️ 4. Comparison Table: Before vs. After
-
-| Feature | Original Legacy Version | Current Modern Version |
-|---|---|---|
-| **Architecture** | Monolithic Streamlit script | Decoupled FastAPI backend + HTML/JS frontend |
-| **LLM Provider** | Google PaLM (deprecated) | Google Gemini 2.5 Flash (active, state-of-the-art) |
-| **LangChain Core** | Outdated `RetrievalQA` chain | Modern LCEL (LangChain Expression Language) |
-| **Index Loading** | Direct load (security crash) | Safe FAISS load with explicit deserialization flag |
-| **User Interface** | Basic Streamlit form widgets | WhatsApp/ChatGPT-style chat bubbles with typing dots |
-| **Dataset Path** | Broken relative path | Robust relative path (`../dataset/dataset.csv`) |
-| **Integration** | Locked inside Streamlit | Open REST API (`POST /ask`) ready for any platform |
-
----
-
-## 🔄 5. End-to-End Operational Pipeline (Data Flow)
-
-```
-1. Ingestion:
-   dataset.csv ➔ CSVLoader ➔ LangChain Documents
-
-2. Embedding:
-   Documents ➔ HuggingFace Instructor-Large ➔ 768-dim Vectors
-
-3. Indexing:
-   Vectors ➔ FAISS Index ➔ Saved locally in backend/faiss_index/
-
-4. Retrieval:
-   User Question ➔ Vector Similarity Search (Score > 0.7) ➔ Top FAQ Matches
-
-5. Generation:
-   Retrieved FAQ Matches + User Question ➔ Prompt Template ➔ Gemini 2.5 Flash
-
-6. Delivery:
-   Gemini Answer ➔ FastAPI JSON Response ➔ Animated Bubble in Frontend Chat UI
+```text
+User Input (Text / Image / Mixed Language)
+    │
+    ▼
+[Task 6] Multilingual Orchestrator ──▶ Language Detection & Session Context
+    │
+    ├── (Ambiguous) ───────────────▶ Return Smart Clarification Prompt
+    │
+    ▼
+[Task 5] Sentiment & Risk Engine ──▶ Evaluate Emotion & Escalation Triggers
+    │
+    ▼
+[Task 1 & 4] FAISS / Temporal RAG ──▶ Semantic Search & Grounded Retrieval
+    │
+    ▼
+Google Gemini LLM ─────────────────▶ Synthesize Grounded, Tone-Adapted Answer
+    │
+    ▼
+[Task 2 & 3] Evidence / Ticketing ──▶ Cross-Check OCR Evidence or Generate Ticket
+    │
+    ▼
+Unified JSON Payload ──────────────▶ Rendered in Web Frontend UI
 ```
 
 ---
 
-## 🛠️ 6. How to Run the Project
+## 🧪 5. Testing & Verification Summary
 
-### Start the Backend
-```powershell
-cd c:\Users\Acer\Desktop\customer_service_bot\backend
-python -m uvicorn main:app --port 8000 --reload
-```
-- Interactive API Docs (Swagger): [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Total Automated Tests**: **891 Passing Tests** across all 6 tasks.
+- **Live Interactive Demo**: 16 pipeline health and quality gate checks passing (`python run.py demo`).
+- **Dataset Verification**: Core `dataset/dataset.csv` maintained with SHA-256 hash `930649d927881235ecbd3b53b29de92ddf8dbeca084657774335630eb9361b9a`.
 
-### Open the Frontend
-Double-click:
-```
-c:\Users\Acer\Desktop\customer_service_bot\frontend\index.html
-```
-or open it in Google Chrome, Edge, or any web browser.
+---
+
+## 🛠️ 6. How to Run
+
+1. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. **Start Backend Server**:
+   ```bash
+   python run.py server
+   ```
+3. **Open Frontend**:
+   Open `frontend/index.html` in your web browser.
+4. **Interactive Swagger API Documentation**:
+   Visit [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
