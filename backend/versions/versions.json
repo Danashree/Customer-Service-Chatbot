@@ -1,0 +1,55 @@
+{
+  "versions": {
+    "v1": {
+      "version": "v1",
+      "created_at": "2026-09-09T13:55:23.654823+00:00",
+      "status": "active",
+      "source_documents": [
+        "dataset.csv",
+        "FAQs.pdf",
+        "how-to-guides.pdf",
+        "product-information.pdf"
+      ],
+      "document_hashes": {
+        "FAQs.pdf": "939560dbe9f1b2ad0eddcc006f0228a73e0a202d670b75b0ee4eef2fadd82eb1",
+        "how-to-guides.pdf": "73bbe6392c79eb1f13a38e3f86e30e1ea1fbd0e3820c830cd9617687fde6e051",
+        "product-information.pdf": "d7f4fe5465ed3a70eb769a457ab9e6f96fb56833f3e387fc83c0356a6e0e9daa"
+      },
+      "chunk_count": 57,
+      "parent_version": null,
+      "activated_at": "2026-09-09T13:55:23.654823+00:00",
+      "rollback_info": null
+    },
+    "v2": {
+      "version": "v2",
+      "created_at": "2026-09-10T05:02:40.976872+00:00",
+      "status": "candidate",
+      "source_documents": [
+        "Return_Policy_2026.pdf"
+      ],
+      "document_hashes": {
+        "Return_Policy_2026.pdf": "986e4e5a2b1f6799d2d42c21c58d151ea07e7578ebef17e58f08a549bad9c694"
+      },
+      "chunk_count": 58,
+      "parent_version": "v1",
+      "activated_at": null,
+      "rollback_info": null,
+      "evaluation": {
+        "status": "rejected",
+        "decision": "REJECTED",
+        "overall_status": "FAIL",
+        "retrieval_score": 0.1667,
+        "grounding_score": 0.1667,
+        "previous_retrieval_score": null,
+        "previous_grounding_score": null,
+        "regression_status": "PASS",
+        "evaluated_at": "2026-09-10T05:02:40.979245+00:00",
+        "report_file": "C:\\Users\\Acer\\Desktop\\customer_service_bot\\backend\\versions\\evaluation_reports\\v2_evaluation.json",
+        "failure_reasons": [
+          "Retrieval score 0.1667 is below minimum required threshold of 0.7000",
+          "Grounding score 0.1667 is below minimum required threshold of 0.7000"
+        ]
+      }
+    }
+  }
+}

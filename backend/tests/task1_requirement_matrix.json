@@ -1,0 +1,368 @@
+{
+  "task": "Task 1 \u2014 Knowledge-base Update and Monitoring Pipeline",
+  "generated_at": "2026-09-10T09:37:00Z",
+  "total_requirements": 16,
+  "requirements_passed": 16,
+  "requirements_failed": 0,
+  "overall_status": "PASS",
+  "matrix": [
+    {
+      "requirement_id": "REQ-A",
+      "name": "Automated Periodic Scanning / Document Ingestion",
+      "description": "Scans input directory for new PDF files, extracts text, and chunks content",
+      "phase": "Phase 1 & Phase 4",
+      "implementation_files": [
+        "backend/pipeline/document_processor.py",
+        "backend/pipeline/scheduler.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase1.py",
+        "backend/tests/test_phase4.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_discover_new_documents",
+        "test_text_extraction_and_chunking",
+        "test_schedule_interval_is_configurable",
+        "test_end_to_end_new_document_lifecycle"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-B",
+      "name": "SHA-256 Duplicate and Change Detection",
+      "description": "Calculates cryptographic SHA-256 hash of document content to detect modified and duplicate files",
+      "phase": "Phase 1",
+      "implementation_files": [
+        "backend/pipeline/document_processor.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase1.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_sha256_hash_generation",
+        "test_detect_modified_document",
+        "test_detect_duplicate_document",
+        "test_end_to_end_modified_document_scenario",
+        "test_end_to_end_duplicate_document_scenario",
+        "test_hidden_eval_1_modified_document_with_duplicate"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-C",
+      "name": "Document Validation & Quarantine for Corrupted/Unsupported Files",
+      "description": "Validates format, magic bytes, size limits; quarantines corrupted, zero-byte, or oversized files with audit logging",
+      "phase": "Phase 1 & Phase 5",
+      "implementation_files": [
+        "backend/pipeline/document_processor.py",
+        "backend/pipeline/security.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase1.py",
+        "backend/tests/test_phase5.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_corrupt_pdf_quarantine",
+        "test_unsafe_file_rejected",
+        "test_end_to_end_invalid_document_quarantine",
+        "test_hidden_eval_2_invalid_document_with_prompt_injection"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-D",
+      "name": "Persistent Registry for Document Metadata",
+      "description": "Maintains persistent JSON metadata registry tracking processed files, timestamps, versions, and hashes",
+      "phase": "Phase 1",
+      "implementation_files": [
+        "backend/pipeline/document_processor.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase1.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_persistent_registry",
+        "test_state_persistence_across_recreation"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-E",
+      "name": "Versioned FAISS Index Creation (Never Overwrite Active Index Directly)",
+      "description": "Builds new immutable vector index snapshots into isolated version directories with manifest metadata",
+      "phase": "Phase 2",
+      "implementation_files": [
+        "backend/pipeline/vector_store_manager.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase2.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_build_candidate_version_creates_directory_and_manifest",
+        "test_candidate_version_does_not_overwrite_active_version",
+        "test_failure_isolation_does_not_corrupt_active_version"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-F",
+      "name": "Controlled Activation of New Knowledge-Base Versions",
+      "description": "Atomically updates active_version.json pointer only after quality and health checks pass",
+      "phase": "Phase 2",
+      "implementation_files": [
+        "backend/pipeline/vector_store_manager.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase2.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_activate_version_updates_active_pointer",
+        "test_cannot_activate_nonexistent_or_unapproved_version",
+        "test_end_to_end_new_document_lifecycle"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-G",
+      "name": "Rollback Capability to Previous Version",
+      "description": "Enables zero-downtime rollback to previous or explicitly specified historical version",
+      "phase": "Phase 2",
+      "implementation_files": [
+        "backend/pipeline/vector_store_manager.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase2.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_rollback_to_previous_version",
+        "test_rollback_to_specific_historical_version",
+        "test_rollback_when_no_previous_version_fails_safely",
+        "test_hidden_eval_12_multi_version_chain_and_deep_rollback"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-H",
+      "name": "Post-Activation Health Check Hook",
+      "description": "Runs automated post-activation query validation and triggers immediate rollback if degraded",
+      "phase": "Phase 2 & Phase 6",
+      "implementation_files": [
+        "backend/pipeline/vector_store_manager.py",
+        "backend/pipeline/monitoring.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase2.py",
+        "backend/tests/test_phase6.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_health_check_hook_passes_on_valid_index",
+        "test_health_check_hook_triggers_automatic_rollback_on_failure",
+        "test_post_activation_health_failure_automatic_rollback",
+        "test_hidden_eval_7_health_failure_automatic_rollback_with_monitoring"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-I",
+      "name": "Retrieval & Grounding Evaluation Before Activation",
+      "description": "Evaluates semantic similarity retrieval scores and context grounding before candidate approval",
+      "phase": "Phase 3",
+      "implementation_files": [
+        "backend/pipeline/quality_evaluator.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase3.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_retrieval_similarity_evaluation_passes_above_threshold",
+        "test_retrieval_similarity_fails_below_threshold",
+        "test_grounding_faithfulness_evaluation_passes_well_grounded",
+        "test_grounding_faithfulness_fails_ungrounded_hallucinations",
+        "test_end_to_end_new_document_lifecycle"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-J",
+      "name": "Regression Prevention Gate (Strict Thresholds)",
+      "description": "Prevents degradation greater than allowed delta (0.05) compared to baseline active version",
+      "phase": "Phase 3",
+      "implementation_files": [
+        "backend/pipeline/quality_evaluator.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase3.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_regression_detection_blocks_degraded_candidate",
+        "test_regression_detection_permits_improved_or_comparable_candidate",
+        "test_quality_gate_rejection_prevents_activation",
+        "test_hidden_eval_4_quality_rejection_clears_retry"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-K",
+      "name": "Scheduler with Configurable Intervals",
+      "description": "Automated recurring pipeline execution engine with configurable intervals, status reporting, and force-run options",
+      "phase": "Phase 4",
+      "implementation_files": [
+        "backend/pipeline/scheduler.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase4.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_schedule_interval_is_configurable",
+        "test_scheduler_disabled_skips_execution",
+        "test_force_run_bypasses_disabled_scheduler",
+        "test_scheduler_status_reports_diagnostics"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-L",
+      "name": "15-30-60 Minute Transient Retry Schedule with Max Retry Exhaustion",
+      "description": "Executes exponential backoff (15m, 30m, 60m) on transient errors; stops on permanent failures or exhaustion",
+      "phase": "Phase 4",
+      "implementation_files": [
+        "backend/pipeline/scheduler.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase4.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_transient_failure_retry_schedule_15_30_60",
+        "test_retry_exhaustion_marks_operation_as_failed",
+        "test_quality_rejection_does_not_trigger_retry",
+        "test_permanent_failures_do_not_trigger_retry",
+        "test_exact_retry_schedule_and_exhaustion",
+        "test_hidden_eval_10_scheduler_restart_with_pending_retry"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-M",
+      "name": "Maintenance Window Gating (Including Midnight Crossing)",
+      "description": "Defers production activations outside designated maintenance hours; supports intervals spanning midnight",
+      "phase": "Phase 4",
+      "implementation_files": [
+        "backend/pipeline/scheduler.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase4.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_standard_maintenance_window",
+        "test_maintenance_window_crossing_midnight",
+        "test_waiting_candidate_activates_when_maintenance_window_opens",
+        "test_outside_maintenance_window_does_not_consume_retries",
+        "test_maintenance_window_deferral_and_activation",
+        "test_maintenance_window_crossing_midnight_integration",
+        "test_hidden_eval_3_approved_candidate_outside_window_with_transient_failure",
+        "test_hidden_eval_11_midnight_window_with_queued_candidate"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-N",
+      "name": "Role-Based Access Control (RBAC: Admin, Operator, Viewer)",
+      "description": "Enforces strict RBAC boundaries; viewer is read-only, operator triggers pipelines, only admin activates/rolls back",
+      "phase": "Phase 5",
+      "implementation_files": [
+        "backend/pipeline/security.py",
+        "backend/pipeline/vector_store_manager.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase5.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_viewer_can_view_status",
+        "test_operator_can_run_pipeline",
+        "test_admin_can_activate_version",
+        "test_admin_can_rollback",
+        "test_viewer_cannot_activate",
+        "test_operator_cannot_activate",
+        "test_viewer_cannot_rollback",
+        "test_operator_cannot_rollback",
+        "test_deny_by_default_behavior",
+        "test_rbac_security_boundaries",
+        "test_hidden_eval_5_unauthorized_activation_of_valid_candidate"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-O",
+      "name": "Security: PII Masking, Prompt Injection Defense, File Safety Validation",
+      "description": "Sanitizes emails/phones/cards/API keys, flags adversarial prompt injection patterns, blocks unsafe paths/extensions",
+      "phase": "Phase 5",
+      "implementation_files": [
+        "backend/pipeline/security.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase5.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_prompt_injection_is_detected",
+        "test_normal_text_not_falsely_rejected",
+        "test_malicious_document_instructions_remain_untrusted",
+        "test_pii_email_masking",
+        "test_pii_phone_masking",
+        "test_pii_payment_card_masking",
+        "test_sensitive_identifiers_masked",
+        "test_api_key_secret_masking",
+        "test_security_logs_contain_no_raw_sensitive_values",
+        "test_prompt_injection_remains_untrusted_data",
+        "test_sensitive_data_and_secrets_are_masked",
+        "test_hidden_eval_9_sensitive_error_sanitized_in_security_and_monitoring"
+      ],
+      "status": "PASS"
+    },
+    {
+      "requirement_id": "REQ-P",
+      "name": "Pipeline Latency, Failure, and Health Monitoring with Operational Metrics Dashboard",
+      "description": "Tracks latency statistics, failure rates, quality trends, active version health, and outputs dashboard metrics",
+      "phase": "Phase 6",
+      "implementation_files": [
+        "backend/pipeline/monitoring.py"
+      ],
+      "test_files": [
+        "backend/tests/test_phase6.py",
+        "backend/tests/test_phase7.py"
+      ],
+      "test_names": [
+        "test_successful_pipeline_run_is_recorded",
+        "test_failed_pipeline_run_is_recorded",
+        "test_latency_is_measured",
+        "test_latency_statistics_are_calculated",
+        "test_retrieval_score_is_recorded",
+        "test_grounding_score_is_recorded",
+        "test_regression_is_recorded",
+        "test_active_version_health_is_healthy",
+        "test_high_latency_alert_generated",
+        "test_repeated_failure_alert_generated",
+        "test_quality_regression_alert_generated",
+        "test_dashboard_summary_contains_expected_fields",
+        "test_dashboard_summary_operational_metrics",
+        "test_hidden_eval_6_successful_activation_and_monitoring_persistence",
+        "test_hidden_eval_8_consecutive_failures_trigger_alert_and_unhealthy_state"
+      ],
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment and sensitive secrets (NEVER COMMIT API KEYS)
+.env
+.env.local
+.env.*
+!.env.example
+
+# Temporary multimodal uploads (keep folder via .gitkeep)
+backend/temp_uploads/*
+!backend/temp_uploads/.gitkeep
+
+# Testing and coverage caches
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+.DS_Store
+
+# IDE and Editor configurations
+.vscode/
+.idea/
+*.swp
+*.swo

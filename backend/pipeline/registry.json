@@ -1,0 +1,33 @@
+{
+  "documents": {
+    "FAQs.pdf": {
+      "sha256": "939560dbe9f1b2ad0eddcc006f0228a73e0a202d670b75b0ee4eef2fadd82eb1",
+      "status": "processed",
+      "last_processed": "2026-09-09T11:08:28.272101+00:00",
+      "pages_count": 5,
+      "chunks_count": 11,
+      "is_modified": false
+    },
+    "how-to-guides.pdf": {
+      "sha256": "73bbe6392c79eb1f13a38e3f86e30e1ea1fbd0e3820c830cd9617687fde6e051",
+      "status": "processed",
+      "last_processed": "2026-09-09T11:08:28.385817+00:00",
+      "pages_count": 5,
+      "chunks_count": 10,
+      "is_modified": false
+    },
+    "product-information.pdf": {
+      "sha256": "d7f4fe5465ed3a70eb769a457ab9e6f96fb56833f3e387fc83c0356a6e0e9daa",
+      "status": "processed",
+      "last_processed": "2026-09-09T11:08:28.820943+00:00",
+      "pages_count": 19,
+      "chunks_count": 36,
+      "is_modified": false
+    }
+  },
+  "hashes": {
+    "939560dbe9f1b2ad0eddcc006f0228a73e0a202d670b75b0ee4eef2fadd82eb1": "FAQs.pdf",
+    "73bbe6392c79eb1f13a38e3f86e30e1ea1fbd0e3820c830cd9617687fde6e051": "how-to-guides.pdf",
+    "d7f4fe5465ed3a70eb769a457ab9e6f96fb56833f3e387fc83c0356a6e0e9daa": "product-information.pdf"
+  }
+}

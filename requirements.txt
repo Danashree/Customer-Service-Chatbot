@@ -1,0 +1,9 @@
+langchain
+langchain-community
+langchain-core
+python-dotenv
+streamlit
+faiss-cpu
+sentence-transformers
+InstructorEmbedding
+google-api-python-client

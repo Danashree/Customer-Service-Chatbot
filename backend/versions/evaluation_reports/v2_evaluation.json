@@ -1,0 +1,109 @@
+{
+  "version": "v2",
+  "parent_version": "v1",
+  "timestamp": "2026-09-29T15:07:49.042050+00:00",
+  "overall_status": "PASS",
+  "decision": "APPROVED",
+  "retrieval_score": 0.1667,
+  "grounding_score": 0.1667,
+  "response_confidence": 0.1667,
+  "previous_retrieval_score": 0.0833,
+  "previous_grounding_score": 0.0833,
+  "retrieval_difference": 0.0834,
+  "grounding_difference": 0.0834,
+  "regression_status": "PASS",
+  "thresholds": {
+    "min_retrieval_score": 0.0,
+    "min_grounding_score": 0.0,
+    "max_allowed_regression": 0.05
+  },
+  "failure_reasons": [],
+  "evaluation_cases": [
+    {
+      "case_id": "case_1",
+      "question": "What is the refund policy?",
+      "expected_keywords": [
+        "refund",
+        "policy"
+      ],
+      "matched_keywords": [
+        "refund",
+        "policy"
+      ],
+      "retrieved_chunk_count": 3,
+      "retrieval_score": 1.0,
+      "grounding_score": 1.0,
+      "untrusted_instruction_detected": false,
+      "flagged_patterns": []
+    },
+    {
+      "case_id": "case_2",
+      "question": "Can I use Power BI on a Mac computer?",
+      "expected_keywords": [
+        "power bi",
+        "mac"
+      ],
+      "matched_keywords": [],
+      "retrieved_chunk_count": 3,
+      "retrieval_score": 0.0,
+      "grounding_score": 0.0,
+      "untrusted_instruction_detected": false,
+      "flagged_patterns": []
+    },
+    {
+      "case_id": "case_3",
+      "question": "Do you offer EMI payment plans?",
+      "expected_keywords": [
+        "emi"
+      ],
+      "matched_keywords": [],
+      "retrieved_chunk_count": 3,
+      "retrieval_score": 0.0,
+      "grounding_score": 0.0,
+      "untrusted_instruction_detected": false,
+      "flagged_patterns": []
+    },
+    {
+      "case_id": "case_4",
+      "question": "How do I change my email address?",
+      "expected_keywords": [
+        "email",
+        "account"
+      ],
+      "matched_keywords": [],
+      "retrieved_chunk_count": 3,
+      "retrieval_score": 0.0,
+      "grounding_score": 0.0,
+      "untrusted_instruction_detected": false,
+      "flagged_patterns": []
+    },
+    {
+      "case_id": "case_5",
+      "question": "How to cancel an order that has already shipped?",
+      "expected_keywords": [
+        "cancel",
+        "order"
+      ],
+      "matched_keywords": [],
+      "retrieved_chunk_count": 3,
+      "retrieval_score": 0.0,
+      "grounding_score": 0.0,
+      "untrusted_instruction_detected": false,
+      "flagged_patterns": []
+    },
+    {
+      "case_id": "case_6",
+      "question": "What are the features of the wireless noise-canceling headphones?",
+      "expected_keywords": [
+        "headphones",
+        "battery"
+      ],
+      "matched_keywords": [],
+      "retrieved_chunk_count": 3,
+      "retrieval_score": 0.0,
+      "grounding_score": 0.0,
+      "untrusted_instruction_detected": false,
+      "flagged_patterns": []
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "enabled": true,
+  "last_run_at": "2026-09-10T05:08:57.082959+00:00",
+  "last_result": {
+    "status": "no_changes",
+    "active_version": "v1"
+  },
+  "next_scheduled_run_at": null,
+  "pending_candidate": null,
+  "active_retry": null,
+  "audit_history": [
+    {
+      "timestamp": "2026-09-10T05:01:06.658464+00:00",
+      "result": {
+        "status": "retry_scheduled",
+        "attempt": 1,
+        "max_attempts": 3,
+        "next_retry_at": "2026-09-10T05:16:06.605768+00:00",
+        "delay_minutes": 15,
+        "error": "[Errno 2] No such file or directory: 'C:\\\\Users\\\\Acer\\\\Desktop\\\\customer_service_bot\\\\knowledge_base\\\\quarantine\\\\quarantine_report.json'"
+      }
+    },
+    {
+      "timestamp": "2026-09-10T05:08:57.237998+00:00",
+      "result": {
+        "status": "no_changes",
+        "active_version": "v1"
+      }
+    }
+  ]
+}
